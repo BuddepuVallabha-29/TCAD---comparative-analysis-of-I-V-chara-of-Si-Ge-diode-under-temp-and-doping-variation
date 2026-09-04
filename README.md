@@ -1,0 +1,1 @@
+# TCAD---comparative-analysis-of-I-V-chara-of-Si-Ge-diode-under-temp-and-doping-variation
