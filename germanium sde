@@ -1,0 +1,118 @@
+(sde:clear)
+
+;========================================================
+; GERMANIUM PN JUNCTION DIODE
+;========================================================
+
+; Device dimensions
+(define Wdev 2.0)
+(define Hdev 1.0)
+
+; Doping concentrations
+(define Na 1e17)
+(define Nd 1e17)
+
+;--------------------------------------------------------
+; Geometry
+;--------------------------------------------------------
+
+(sdegeo:create-rectangle
+  (position 0.0 0.0 0.0)
+  (position 1.0 Hdev 0.0)
+  "Germanium" "PRegion")
+
+(sdegeo:create-rectangle
+  (position 1.0 0.0 0.0)
+  (position Wdev Hdev 0.0)
+  "Germanium" "NRegion")
+
+;--------------------------------------------------------
+; Doping Profiles
+;--------------------------------------------------------
+
+(sdedr:define-constant-profile
+  "P_Doping"
+  "BoronActiveConcentration"
+  Na)
+
+(sdedr:define-constant-profile-region
+  "P_Profile"
+  "P_Doping"
+  "PRegion")
+
+(sdedr:define-constant-profile
+  "N_Doping"
+  "PhosphorusActiveConcentration"
+  Nd)
+
+(sdedr:define-constant-profile-region
+  "N_Profile"
+  "N_Doping"
+  "NRegion")
+
+;--------------------------------------------------------
+; Contacts
+;--------------------------------------------------------
+
+(sdegeo:define-contact-set
+  "Anode"
+  4.0
+  (color:rgb 1.0 0.0 0.0)
+  "##")
+
+(sdegeo:define-contact-set
+  "Cathode"
+  4.0
+  (color:rgb 0.0 0.0 1.0)
+  "##")
+
+(sdegeo:define-2d-contact
+  (find-edge-id (position 0.0 0.5 0.0))
+  "Anode")
+
+(sdegeo:define-2d-contact
+  (find-edge-id (position Wdev 0.5 0.0))
+  "Cathode")
+
+;--------------------------------------------------------
+; Mesh
+;--------------------------------------------------------
+
+(sdedr:define-refeval-window
+  "GlobalWindow"
+  "Rectangle"
+  (position 0.0 0.0 0.0)
+  (position Wdev Hdev 0.0))
+
+(sdedr:define-refinement-size
+  "GlobalRefinement"
+  0.10 0.10
+  0.05 0.05)
+
+(sdedr:define-refinement-placement
+  "GlobalPlacement"
+  "GlobalRefinement"
+  "GlobalWindow")
+
+; Junction refinement
+(sdedr:define-refeval-window
+  "JunctionWindow"
+  "Rectangle"
+  (position 0.8 0.0 0.0)
+  (position 1.2 Hdev 0.0))
+
+(sdedr:define-refinement-size
+  "JunctionRefinement"
+  0.02 0.05
+  0.01 0.02)
+
+(sdedr:define-refinement-placement
+  "JunctionPlacement"
+  "JunctionRefinement"
+  "JunctionWindow")
+
+;--------------------------------------------------------
+; Build Mesh
+;--------------------------------------------------------
+
+(sde:build-mesh "snmesh" "germanium_PN")
